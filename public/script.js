@@ -1,24 +1,24 @@
-// script.js - Versión para Supabase
+// script.js - Versión corregida para Supabase
 
 // Configuración de Supabase
 const supabaseUrl = 'https://iglsgcsbsyafxrhhyuxb.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlnbHNnY3Nic3lhZnhyaGh5dXhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ2NTM2MzUsImV4cCI6MjA3MDIyOTYzNX0.R-zjBHDtI762fZh60mp15Kn-oB-q6z2BraY_84tCGDY';
-
-// Inicializar Supabase
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-// Configuración de trabajos y horarios
+// Configuración de trabajos y horarios (AJUSTADO para coincidir con la BD)
 const shiftsConfig = [
-    { id: 1, task: "Barra", time: "10:00-14:00" },
-    { id: 2, task: "Barra", time: "14:00-18:00" },
-    { id: 3, task: "Cocina", time: "10:00-14:00" },
-    { id: 4, task: "Cocina", time: "14:00-18:00" }
+    { id: 1, task: "Barra", time: "10:00-14:00" },      // ID 1 en BD
+    { id: 2, task: "Cocina", time: "10:00-14:00" },     // ID 2 en BD
+    { id: 3, task: "Limpieza", time: "10:00-14:00" },   // ID 3 en BD
+    { id: 4, task: "Seguridad", time: "10:00-14:00" },  // ID 4 en BD
+    { id: 1, task: "Barra", time: "14:00-18:00" },      // Mismo trabajo, distinto horario
+    { id: 2, task: "Cocina", time: "14:00-18:00" }
 ];
 
 // Variables globales
 let currentShiftId = null;
+let currentShiftTime = null;
 
-// Cargar y mostrar turnos
 async function loadShifts() {
     const shiftsBody = document.getElementById("shifts-body");
     if (!shiftsBody) {
@@ -36,9 +36,12 @@ async function loadShifts() {
                 .select(`
                     id,
                     usuarios: id_usuario (nombre, apellido1, apellido2),
-                    trabajos: id_trabajo (nombre)
+                    trabajos: id_trabajo (nombre),
+                    horario
                 `)
-                .eq('id_trabajo', shift.id);
+                .eq('id_trabajo', shift.id)
+                .eq('id_festividad', 1) // Filtramos por la festividad 1 (Ramadán 2024)
+                .ilike('horario', `${shift.time.split('-')[0]}%`); // Filtramos por horario
 
             if (error) throw error;
 
@@ -57,14 +60,14 @@ async function loadShifts() {
                     ${people.join(", ") || "Nadie apuntado"}
                 </td>
                 <td>
-                    <button class="btn-signup" data-shift-id="${shift.id}">
+                    <button class="btn-signup" data-shift-id="${shift.id}" data-shift-time="${shift.time}">
                         Apuntarse
                     </button>
                 </td>
             `;
             shiftsBody.appendChild(row);
         } catch (error) {
-            console.error(`Error cargando turno ${shift.id}:`, error);
+            console.error(`Error cargando turno ${shift.task} ${shift.time}:`, error);
             // Mostrar el turno aunque falle la carga de datos
             const row = document.createElement("tr");
             row.innerHTML = `
@@ -72,7 +75,7 @@ async function loadShifts() {
                 <td>${shift.time}</td>
                 <td class="empty">Error cargando datos</td>
                 <td>
-                    <button class="btn-signup" data-shift-id="${shift.id}">
+                    <button class="btn-signup" data-shift-id="${shift.id}" data-shift-time="${shift.time}">
                         Apuntarse
                     </button>
                 </td>
@@ -81,10 +84,11 @@ async function loadShifts() {
         }
     }
 
-    // Añadir event listeners a los botones después de crearlos
+    // Añadir event listeners a los botones
     document.querySelectorAll('.btn-signup').forEach(button => {
         button.addEventListener('click', (e) => {
             currentShiftId = e.target.getAttribute('data-shift-id');
+            currentShiftTime = e.target.getAttribute('data-shift-time');
             document.getElementById("signup-modal").style.display = "flex";
         });
     });
@@ -108,7 +112,7 @@ document.getElementById("signup-form").addEventListener("submit", async (e) => {
     }
 
     try {
-        // Primero insertar el usuario
+        // 1. Insertar el usuario
         const { data: newUser, error: userError } = await supabase
             .from('usuarios')
             .insert([
@@ -123,15 +127,15 @@ document.getElementById("signup-form").addEventListener("submit", async (e) => {
 
         if (userError) throw userError;
 
-        // Luego insertar el horario
+        // 2. Insertar el horario
         const { error: shiftError } = await supabase
             .from('horarios')
             .insert([
                 { 
                     id_usuario: newUser.id,
                     id_trabajo: currentShiftId,
-                    id_festividad: 1, // Asumimos que hay una festividad con ID 1
-                    horario: shiftsConfig.find(s => s.id == currentShiftId).time
+                    id_festividad: 1, // Ramadán 2024
+                    horario: currentShiftTime.split('-')[0] // Tomamos la hora de inicio
                 }
             ]);
 
@@ -143,7 +147,7 @@ document.getElementById("signup-form").addEventListener("submit", async (e) => {
         await loadShifts(); // Actualizar la tabla
     } catch (error) {
         console.error("Error al apuntarse:", error);
-        alert("Error al guardar. Inténtalo de nuevo.");
+        alert(`Error al guardar: ${error.message}`);
     }
 });
 
