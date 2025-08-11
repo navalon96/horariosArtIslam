@@ -15,7 +15,7 @@ body {
 }
 
 h1 {
-    color: #800000;
+    color: #260080;
     text-align: center;
 }
 
@@ -32,7 +32,7 @@ th, td {
 }
 
 th {
-    background-color: #800000;
+    background-color: #260080;
     color: white;
 }
 
@@ -41,7 +41,7 @@ tr:nth-child(even) {
 }
 
 .btn-signup {
-    background-color: #800000;
+    background-color: #260080;
     color: white;
     border: none;
     padding: 8px 12px;
@@ -51,7 +51,7 @@ tr:nth-child(even) {
 }
 
 .btn-signup:hover {
-    background-color: #600000;
+    background-color: #260080;
 }
 
 /* Modal */
@@ -101,7 +101,7 @@ tr:nth-child(even) {
 form button {
     width: 100%;
     padding: 10px;
-    background-color: #800000;
+    background-color: #260080;
     color: white;
     border: none;
     border-radius: 4px;
@@ -109,12 +109,12 @@ form button {
 }
 
 .empty {
-  color: #800000; /* Color granate para resaltar */
+  color: #260080; /* Color granate para resaltar */
   font-style: italic;
 }
 
 .btn-signup {
-  background-color: #800000;
+  background-color: #260080;
   color: white;
   padding: 6px 12px;
   border: none;
