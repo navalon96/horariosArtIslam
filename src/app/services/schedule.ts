@@ -23,7 +23,7 @@ export class scheduleService {
                     this.setUserScheduleData(data, usersData);
 
                     this.formatScheduleData(data, usersData);
-                })
+                });
             }
         });
     }
@@ -32,6 +32,14 @@ export class scheduleService {
         const groups = data.reduce((acc, item) => {
             const puesto = item.trabajos.nombre;
             const hora = item.horario.substring(0, 5);
+
+            const users = assignmentsData.reduce((acc, { usuarios, id_horario }) => {
+                if (id_horario === item.id) {
+                    return [...acc, usuarios];
+                }
+
+                return acc;
+            }, []);
 
             if (!acc.has(puesto)) {
                 acc.set(puesto, {
@@ -43,25 +51,18 @@ export class scheduleService {
             }
 
             const grupo = acc.get(puesto);
-            let jornada = (grupo.horarios as { id: string; trackId: string; horaInicio: string; gente: any[]; }[]).find(({ horaInicio }) => horaInicio === hora);
+            let jornada = (grupo.horarios as { id: string; trackId: string; horaInicio: string; bloqueado: boolean; gente: any[]; }[]).find(({ horaInicio }) => horaInicio === hora);
 
             if (!jornada) {
                 jornada = {
                     id: item.id,
                     trackId: `${item.trabajos.id}-${item.id}`,
                     horaInicio: hora,
+                    bloqueado: item.trabajos.limite <= users.length,
                     gente: []
                 };
                 grupo.horarios.push(jornada);
             }
-
-            const users = assignmentsData.reduce((acc, { usuarios, id_horario }) => {
-                if (id_horario === item.id) {
-                    return [...acc, usuarios];
-                }
-
-                return acc;
-            }, []);
 
             if (users?.length) {
                 jornada.gente = users.map(user => {
