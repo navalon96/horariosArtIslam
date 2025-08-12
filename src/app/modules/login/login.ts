@@ -7,6 +7,8 @@ import { CookiesService } from '../../services/cookies';
 import { SupabaseService } from '../../services/supabase';
 import { UserService } from '../../services/user';
 
+declare const google: any;
+
 @Component({
     selector: 'login-root',
     templateUrl: './login.html',
@@ -23,7 +25,23 @@ export default class LoginComponent implements OnInit {
     private userService: UserService = inject(UserService);
 
     ngOnInit(): void {
-        (window as any).handleCredentialResponse = this.handleCredentialResponse.bind(this);
+        google.accounts.id.initialize({
+            client_id: environment.google.client_id,
+            callback: (response: any) => this.handleCredentialResponse(response),
+            auto_prompt: false
+        });
+        google.accounts.id.renderButton(
+            document.querySelector('.g_id_signin'),
+            {
+                type: 'standard',
+                size: 'large',
+                theme: 'filled_blue',
+                text: 'continue_with',
+                shape: 'pill',
+                logo_alignment: 'left',
+                width: 300
+            }
+        );
     }
 
     handleCredentialResponse(response: any): void {
