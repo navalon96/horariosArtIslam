@@ -32,6 +32,7 @@ export class scheduleService {
                         acc.set(puesto, {
                             puesto,
                             id: item.trabajos.id,
+                            limite: item.trabajos.limite,
                             jornadas: []
                         });
                     }
