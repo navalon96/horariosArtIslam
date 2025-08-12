@@ -92,7 +92,7 @@ export class scheduleService {
                     return -1;
                 }
 
-                return a.horaInicio > b.horaInicio ? 1 : -1
+                return a.horaInicio > b.horaInicio ? 1 : -1;
             });
         });
         this.data.set(auxArray);
