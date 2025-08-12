@@ -82,6 +82,8 @@ export class scheduleService {
         }, new Map());
 
         const auxArray = Array.from(groups.values());
+        auxArray.sort((a, b) => a['puesto'] > b['puesto'] ? 1 : -1);
+
         auxArray.forEach(group => {
             group['horarios'].sort((a, b) => {
                 if (a.horaInicio === '00:00') {
