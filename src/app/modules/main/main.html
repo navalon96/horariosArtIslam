@@ -1,0 +1,20 @@
+<main class="container">
+    @for (puesto of (userService.data$ | async); track puesto.id) {
+        <section>
+            <h2>{{ puesto.puesto }}</h2>
+            <div class="cards-container">
+                @for (jornada of puesto.jornadas; track jornada.trackId) {
+                    <div class="card">
+                        <h3>{{ jornada.horaInicio }}</h3>
+                        <ul class="people-container">
+                            @for (persona of jornada.gente; track persona.trackId) {
+                                <li>{{ persona.nombre }}</li>
+                            }
+                        </ul>
+                        <button>AÑADIR</button>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+</main>
