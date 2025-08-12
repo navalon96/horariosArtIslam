@@ -1,5 +1,6 @@
 <main class="container">
-    @for (puesto of (userService.data$ | async); track puesto.id) {
+    <h1>{{ scheduleService.festivity.nombre }}</h1>
+    @for (puesto of scheduleService.data(); track puesto.id) {
         <section>
             <h2>{{ puesto.puesto }}</h2>
             <div class="cards-container">
@@ -11,7 +12,11 @@
                                 <li>{{ persona.nombre }}</li>
                             }
                         </ul>
-                        <button>AÑADIR</button>
+                        @if (!userService.user.assignmentPlace) {
+                            <button (click)="addToWork(puesto.id, puesto.puesto, jornada.horaInicio)">AÑADIR</button>
+                        } @else if (userService.user.assignmentPlace === puesto.puesto && jornada.horaInicio === userService.user.schedule) {
+                            <button (click)="removeToWork()">Eliminar</button>
+                        }
                     </div>
                 }
             </div>
