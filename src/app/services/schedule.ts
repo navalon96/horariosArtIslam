@@ -22,6 +22,7 @@ export class scheduleService {
                 this.userService.user.assignmentPlace = userData?.trabajos?.nombre;
                 this.userService.user.assignmentId = userData?.id;
                 this.userService.user.schedule = userData?.horario.substring(0, 5);
+                console.log('Clau is data', data);
                 const groups = data.reduce((acc, item) => {
                     const puesto = item.trabajos.nombre;
                     const hora = item.horario.substring(0, 5);
@@ -32,6 +33,7 @@ export class scheduleService {
                         acc.set(puesto, {
                             puesto,
                             id: item.trabajos.id,
+                            limite: item.trabajos.limite,
                             jornadas: []
                         });
                     }
