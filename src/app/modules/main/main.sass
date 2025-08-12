@@ -8,12 +8,16 @@ main.container
     padding: 24px
     font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif
 
+    h1
+        margin-bottom: 0
+
     section
         background: white
         padding: 24px
         border-radius: 12px
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05)
         transition: transform 0.2s, box-shadow 0.2s
+
 
         h2
             text-transform: capitalize
@@ -38,6 +42,10 @@ main.container
                 border: none
                 position: relative
                 overflow: hidden
+                background-color: #D2A9A952
+
+                &.card-complete
+                    background-color: #8989897A
 
                 &:hover
                     transform: translateY(-5px)
@@ -68,6 +76,7 @@ main.container
                             color: #99001F
                             position: absolute
                             left: 0
+
 
 button
     background: linear-gradient(135deg, #99001F, #c70039)
