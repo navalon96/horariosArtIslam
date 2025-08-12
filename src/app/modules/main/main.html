@@ -1,22 +1,28 @@
 <main class="container">
-    <h1>{{ scheduleService.festivity?.nombre }}</h1>
-    @for (puesto of scheduleService.data(); track puesto.id) {
+    @for (puesto of (userService.data$ | async); track puesto.id) {
         <section>
-            <h2>{{ puesto.puesto }}</h2>
+            <div class="section-header">
+                <h2>{{ puesto.puesto }}</h2>
+                <span class="badge">{{ puesto.jornadas.length }} turnos</span>
+            </div>
             <div class="cards-container">
                 @for (jornada of puesto.jornadas; track jornada.trackId) {
                     <div class="card">
-                        <h3>{{ jornada.horaInicio }}</h3>
+                        <div class="time-badge">
+                            {{ jornada.horaInicio }} - {{ jornada.horaFin }}
+                        </div>
+                        <h3>Equipo</h3>
                         <ul class="people-container">
                             @for (persona of jornada.gente; track persona.trackId) {
-                                <li>{{ persona.nombre }}</li>
+                                <li>
+                                    <span class="person-name">{{ persona.nombre }}</span>
+                                    <span class="person-email">{{ persona.email }}</span>
+                                </li>
                             }
                         </ul>
-                        @if (!userService.user.assignmentPlace) {
-                            <button (click)="addToWork(puesto.id, puesto.puesto, jornada.horaInicio)">AÑADIR</button>
-                        } @else if (userService.user.assignmentPlace === puesto.puesto && jornada.horaInicio === userService.user.schedule) {
-                            <button (click)="removeToWork()">Eliminar</button>
-                        }
+                        <button class="add-button">
+                            <i class="icon-plus"></i> Añadir persona
+                        </button>
                     </div>
                 }
             </div>

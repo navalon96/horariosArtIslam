@@ -1,29 +1,189 @@
-main.container
-    height: fit-content
-    min-height: 100dvh
-    display: flex
-    flex-direction: column
-    gap: 16px
-    overflow: auto
-    h1
-        text-align: center
-        margin-bottom: 0
-    section
-        padding: 16px
-        h2
-            text-transform: capitalize
-        .cards-container
-            display: flex
-            flex-direction: column
-            gap: 16px
-            .card
-                box-shadow: 0px 6px 18px #CBCBCB
-                border: 1px solid #99001F
-                border-radius: 8px
-                padding: 16px
-                padding-top: 0
-                ul
-                    border-top: 1px solid black
-                    padding-top: 8px
-                button
-                    width: 100%
+/* Estilos generales */
+main.container {
+    background-color: #f8f9fa;
+    height: fit-content;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px;
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+@media(min-width: 465px) {
+    main.container {
+        margin-left: 10vw;
+        margin-right: 10vw;
+    }
+}
+
+@media(min-width: 765px) {
+    main.container {
+        margin-left: 15vw;
+        margin-right: 15vw;
+    }
+}
+
+/* Secciones */
+section {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+section h2 {
+    text-transform: capitalize;
+    color: #2c3e50;
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #f0f0f0;
+    font-weight: 600;
+}
+
+/* Contenedor de tarjetas */
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+/* Tarjetas individuales */
+.card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    transition: all 0.3s ease;
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card h3 {
+    color: #99001F;
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+/* Lista de personas */
+.people-container {
+    border-top: 1px solid #eee;
+    padding-top: 12px;
+    margin-bottom: 16px;
+    list-style: none;
+    padding-left: 0;
+}
+
+.people-container li {
+    padding: 6px 0;
+    color: #555;
+    font-size: 0.95rem;
+    position: relative;
+    padding-left: 16px;
+}
+
+.people-container li::before {
+    content: "•";
+    color: #99001F;
+    position: absolute;
+    left: 0;
+}
+
+/* Botones */
+button {
+    background: linear-gradient(135deg, #99001F, #c70039);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+button:hover {
+    background: linear-gradient(135deg, #c70039, #99001F);
+    box-shadow: 0 4px 8px rgba(153, 0, 31, 0.3);
+}
+
+/* Elementos adicionales para el HTML mejorado */
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.badge {
+    background: #e9ecef;
+    color: #495057;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.time-badge {
+    background: #f8f9fa;
+    color: #495057;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    display: inline-block;
+    margin-bottom: 12px;
+}
+
+.person-name {
+    display: block;
+    font-weight: 500;
+}
+
+.person-email {
+    display: block;
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.add-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.icon-plus {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* Borde lateral decorativo */
+.card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, #99001F, #c70039);
+}
