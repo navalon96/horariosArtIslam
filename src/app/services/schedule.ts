@@ -18,51 +18,63 @@ export class scheduleService {
         this.supabase.getData('horarios', '*, usuarios(*), trabajos(*), festividad!inner(*)').gt('festividad.fecha_bloqueo', today).then(({ data }) => {
             if (data) {
                 this.festivity = data[0].festividad;
-                const userData = data.find((item: any) => item.usuarios.email === this.userService.user.email)
-                this.userService.user.assignmentPlace = userData?.trabajos?.nombre;
-                this.userService.user.assignmentId = userData?.id;
-                this.userService.user.schedule = userData?.horario.substring(0, 5);
-                const groups = data.reduce((acc, item) => {
-                    const puesto = item.trabajos.nombre;
-                    const hora = item.horario.substring(0, 5);
-                    const nombreUsuario = `${item.usuarios.nombre} ${item.usuarios.apellido}`;
-                    const emailUsuario = item.usuarios.email;
+                this.setUserScheduleData(data);
 
-                    if (!acc.has(puesto)) {
-                        acc.set(puesto, {
-                            puesto,
-                            id: item.trabajos.id,
-                            limite: item.trabajos.limite,
-                            jornadas: []
-                        });
-                    }
-
-                    const grupo = acc.get(puesto);
-                    let jornada = (grupo.jornadas as { id: string, trackId: string, horaInicio: string, gente: any[] }[] ).find(({ horaInicio }) => horaInicio === hora);
-
-                    if (!jornada) {
-                        jornada = {
-                            id: item.id,
-                            trackId: `${item.trabajos.id}-${item.id}`,
-                            horaInicio: hora,
-                            gente: []
-                        };
-                        grupo.jornadas.push(jornada);
-                    }
-
-                    jornada.gente.push({
-                        id: item.usuarios.id,
-                        trackId: `${item.trabajos.id}-${item.id}-${item.usuarios.id}`,
-                        nombre: nombreUsuario,
-                        email: emailUsuario
-                    });
-
-                    return acc;
-                }, new Map());
-
-                this.data.set(Array.from(groups.values()));
+                this.formatScheduleData(data);
             }
         });
+    }
+
+    private formatScheduleData(data: any): void {
+        const groups = data.reduce((acc, item) => {
+            const puesto = item.trabajos.nombre;
+            const hora = item.horario.substring(0, 5);
+            const nombreUsuario = `${item.usuarios.nombre} ${item.usuarios.apellido}`;
+            const emailUsuario = item.usuarios.email;
+
+            if (!acc.has(puesto)) {
+                acc.set(puesto, {
+                    puesto,
+                    id: item.trabajos.id,
+                    limite: item.trabajos.limite,
+                    jornadas: []
+                });
+            }
+
+            const grupo = acc.get(puesto);
+            let jornada = (grupo.jornadas as { id: string; trackId: string; horaInicio: string; gente: any[]; }[]).find(({ horaInicio }) => horaInicio === hora);
+
+            if (!jornada) {
+                jornada = {
+                    id: item.id,
+                    trackId: `${item.trabajos.id}-${item.id}`,
+                    horaInicio: hora,
+                    gente: []
+                };
+                grupo.jornadas.push(jornada);
+            }
+
+            jornada.gente.push({
+                id: item.usuarios.id,
+                trackId: `${item.trabajos.id}-${item.id}-${item.usuarios.id}`,
+                nombre: nombreUsuario,
+                email: emailUsuario
+            });
+
+            return acc;
+        }, new Map());
+
+        this.data.set(Array.from(groups.values()));
+    }
+
+    private setUserScheduleData(data: any): void {
+        const userData = data.find((item: any) => item.usuarios?.email === this.userService.user.email);
+
+        if (userData) {
+            this.userService.user.assignmentPlace = userData.trabajos?.nombre;
+            this.userService.user.assignmentId = userData.id;
+            this.userService.user.schedule = userData.horario.substring(0, 5);
+        }
     }
 
     addToWork(data: { id_trabajo: string, horario: string }): any {
