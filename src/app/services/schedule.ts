@@ -15,34 +15,35 @@ export class scheduleService {
 
     public getData(): void {
         const today = new Date().toISOString();
-        this.supabase.getData('horarios', '*, usuarios(*), trabajos(*), festividad!inner(*)').gt('festividad.fecha_bloqueo', today).then(({ data }) => {
+        this.supabase.getData('horarios', '*, trabajos(*), festividad!inner(*)').gt('festividad.fecha_bloqueo', today).then(({ data }) => {
             if (data) {
                 this.festivity = data[0].festividad;
-                this.setUserScheduleData(data);
+                this.supabase.getData('asignaciones', '*, usuarios(*), horarios(*)').eq('horarios.id_festividad', this.festivity.id).then(response => {
+                    const usersData = response.data;
+                    this.setUserScheduleData(data, usersData);
 
-                this.formatScheduleData(data);
+                    this.formatScheduleData(data, usersData);
+                })
             }
         });
     }
 
-    private formatScheduleData(data: any): void {
+    private formatScheduleData(data: any, assignmentsData: any): void {
         const groups = data.reduce((acc, item) => {
             const puesto = item.trabajos.nombre;
             const hora = item.horario.substring(0, 5);
-            const nombreUsuario = `${item.usuarios.nombre} ${item.usuarios.apellido}`;
-            const emailUsuario = item.usuarios.email;
 
             if (!acc.has(puesto)) {
                 acc.set(puesto, {
                     puesto,
                     id: item.trabajos.id,
                     limite: item.trabajos.limite,
-                    jornadas: []
+                    horarios: []
                 });
             }
 
             const grupo = acc.get(puesto);
-            let jornada = (grupo.jornadas as { id: string; trackId: string; horaInicio: string; gente: any[]; }[]).find(({ horaInicio }) => horaInicio === hora);
+            let jornada = (grupo.horarios as { id: string; trackId: string; horaInicio: string; gente: any[]; }[]).find(({ horaInicio }) => horaInicio === hora);
 
             if (!jornada) {
                 jornada = {
@@ -51,42 +52,68 @@ export class scheduleService {
                     horaInicio: hora,
                     gente: []
                 };
-                grupo.jornadas.push(jornada);
+                grupo.horarios.push(jornada);
             }
 
-            jornada.gente.push({
-                id: item.usuarios.id,
-                trackId: `${item.trabajos.id}-${item.id}-${item.usuarios.id}`,
-                nombre: nombreUsuario,
-                email: emailUsuario
-            });
+            const users = assignmentsData.reduce((acc, { usuarios, id_horario }) => {
+                if (id_horario === item.id) {
+                    return [...acc, usuarios];
+                }
+
+                return acc;
+            }, []);
+
+            if (users?.length) {
+                jornada.gente = users.map(user => {
+                    const nombreUsuario = `${user.nombre} ${user.apellido}`;
+                    const emailUsuario = user.email;
+
+                    return {
+                        id: user.id,
+                        trackId: `${item.trabajos.id}-${item.id}-${user.id}`,
+                        nombre: nombreUsuario,
+                        email: emailUsuario
+                    };
+                });
+            }
 
             return acc;
         }, new Map());
 
-        this.data.set(Array.from(groups.values()));
+        const auxArray = Array.from(groups.values());
+        auxArray.forEach(group => {
+            group['horarios'].sort((a, b) => {
+                if (a.horaInicio === '00:00') {
+                    return 1;
+                } else if (b.horaInicio === '00:00') {
+                    return -1;
+                }
+
+                return a.horaInicio > b.horaInicio ? 1 : -1
+            });
+        });
+        this.data.set(auxArray);
     }
 
-    private setUserScheduleData(data: any): void {
-        const userData = data.find((item: any) => item.usuarios?.email === this.userService.user.email);
+    private setUserScheduleData(data: any, assignmentsData: any): void {
+        const assignment = assignmentsData.find(({ id_usuario }) => id_usuario === this.userService.user.id);
+        const scheduleData = data.find(({ id }) => id === assignment?.id_horario);
 
-        if (userData) {
-            this.userService.user.assignmentPlace = userData.trabajos?.nombre;
-            this.userService.user.assignmentId = userData.id;
-            this.userService.user.schedule = userData.horario.substring(0, 5);
+        if (scheduleData) {
+            this.userService.user.assignmentPlace = scheduleData.trabajos?.nombre;
+            this.userService.user.assignmentId = assignment.id;
+            this.userService.user.schedule = scheduleData.horario.substring(0, 5);
         }
     }
 
-    addToWork(data: { id_trabajo: string, horario: string }): any {
-        return this.supabase.insertData('horarios', {
+    addToWork(id_horario: string): any {
+        return this.supabase.insertData('asignaciones', {
             id_usuario: this.userService.user.id,
-            id_festividad: this.festivity.id,
-            id_trabajo: data.id_trabajo,
-            horario: `${data.horario}:00+00`
+            id_horario
         });
     }
 
-    removeToWork(): any {
-        return this.supabase.removeData('horarios', this.userService.user.assignmentId);
+    removeFromWork(): any {
+        return this.supabase.removeData('asignaciones', this.userService.user.assignmentId);
     }
 }

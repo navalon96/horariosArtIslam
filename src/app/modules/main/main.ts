@@ -21,17 +21,17 @@ export default class MainComponent implements OnInit {
         this.userService.getUserData();
     }
 
-    addToWork(placementId: string, placementName: string, schedule): void {
-        this.scheduleService.addToWork({
-            id_trabajo: placementId,
-            horario: schedule
-        }).then(() => {
+    addToWork(scheduleId: string): void {
+        this.scheduleService.addToWork(scheduleId).then(() => {
             this.scheduleService.getData();
         });
     }
 
     removeToWork(): void {
-        this.scheduleService.removeToWork().then(() => {
+        this.scheduleService.removeFromWork().then(() => {
+            this.userService.user.assignmentId = undefined;
+            this.userService.user.assignmentPlace = undefined;
+            this.userService.user.schedule = undefined;
             this.scheduleService.getData();
         });
     }
