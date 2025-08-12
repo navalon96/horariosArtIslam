@@ -18,12 +18,12 @@ main.container
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05)
         transition: transform 0.2s, box-shadow 0.2s
 
-
         h2
             text-transform: capitalize
             color: #2c3e50
             font-size: 1.5rem
             margin-bottom: 16px
+            margin-top: 0
             padding-bottom: 8px
             border-bottom: 2px solid #f0f0f0
             font-weight: 600
@@ -44,6 +44,15 @@ main.container
                 position: relative
                 overflow: hidden
                 background-color: #D2A9A952
+
+                &::after
+                    content: ''
+                    position: absolute
+                    top: 0
+                    left: 0
+                    width: 4px
+                    height: 100%
+                    background: linear-gradient(to bottom, #99001F, #c70039)
 
                 &.card-complete
                     background-color: #8989897A
@@ -90,30 +99,20 @@ main.container
                             position: absolute
                             left: 0
 
+                button
+                    background: linear-gradient(135deg, #99001F, #c70039)
+                    color: white
+                    border: none
+                    padding: 10px 16px
+                    border-radius: 6px
+                    font-weight: 500
+                    cursor: pointer
+                    transition: all 0.3s ease
+                    width: 100%
+                    text-transform: uppercase
+                    font-size: 0.85rem
+                    letter-spacing: 0.5px
 
-button
-    background: linear-gradient(135deg, #99001F, #c70039)
-    color: white
-    border: none
-    padding: 10px 16px
-    border-radius: 6px
-    font-weight: 500
-    cursor: pointer
-    transition: all 0.3s ease
-    width: 100%
-    text-transform: uppercase
-    font-size: 0.85rem
-    letter-spacing: 0.5px
-
-    &:hover
-        background: linear-gradient(135deg, #c70039, #99001F)
-        box-shadow: 0 4px 8px rgba(153, 0, 31, 0.3)
-
-.card::after
-  content: ''
-  position: absolute
-  top: 0
-  left: 0
-  width: 4px
-  height: 100%
-  background: linear-gradient(to bottom, #99001F, #c70039)
+                    &:hover
+                        background: linear-gradient(135deg, #c70039, #99001F)
+                        box-shadow: 0 4px 8px rgba(153, 0, 31, 0.3)
