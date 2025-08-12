@@ -4,7 +4,7 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "public/index.html"
+      "destination": "src/index.html"
     }
   ],
   "headers": [
