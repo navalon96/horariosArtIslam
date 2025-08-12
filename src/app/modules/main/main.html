@@ -6,7 +6,10 @@
             <div class="cards-container">
                 @for (horario of puesto.horarios; track horario.trackId) {
                     <div class="card" [ngClass]="{'card-complete': horario.bloqueado }">
-                        <h3>{{ horario.horaInicio }}</h3>
+                        <div class="header-container">
+                            <h3>{{ horario.horaInicio }}</h3>
+                            <h4 class="counter">{{ horario.gente.length }} / {{ puesto.limite }}</h4>
+                        </div>
                         <ul class="people-container">
                             @for (persona of horario.gente; track persona.trackId) {
                                 <li>{{ persona.nombre }}</li>

@@ -30,8 +30,9 @@ main.container
 
         .cards-container
             display: grid
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))
             gap: 16px
+            @media (min-width: 768px)
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))
 
             .card
                 background: white
@@ -51,18 +52,26 @@ main.container
                     transform: translateY(-5px)
                     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1)
 
-                h3
-                    color: #99001F
-                    font-size: 1.2rem
-                    margin-bottom: 12px
-                    font-weight: 500
+                .header-container
+                    display: flex
+                    justify-content: space-between
+                    align-items: center
+
+                    h3
+                        color: #99001F
+                        font-size: 1.2rem
+                        margin-bottom: 12px
+                        font-weight: 500
+                    .counter
+                        color: #99001F
 
                 .people-container
                     border-top: 1px solid #eee
                     padding-top: 12px
-                    margin-bottom: 16px
-                    list-style: none
                     padding-left: 0
+                    margin-bottom: 16px
+                    margin-top: 0
+                    list-style: none
 
                     li
                         padding: 6px 0
