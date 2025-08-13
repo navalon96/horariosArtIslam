@@ -19,12 +19,11 @@ export default class MainComponent implements OnInit {
     ngOnInit() {
         this.scheduleService.getData();
         this.userService.getUserData();
+        this.scheduleService.getRealTimeData();
     }
 
     addToWork(scheduleId: string): void {
-        this.scheduleService.addToWork(scheduleId).then(() => {
-            this.scheduleService.getData();
-        });
+        this.scheduleService.addToWork(scheduleId).then();
     }
 
     removeToWork(): void {
@@ -32,7 +31,6 @@ export default class MainComponent implements OnInit {
             this.userService.user.assignmentId = undefined;
             this.userService.user.assignmentPlace = undefined;
             this.userService.user.schedule = undefined;
-            this.scheduleService.getData();
         });
     }
 }

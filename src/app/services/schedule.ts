@@ -1,4 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { SupabaseService } from './supabase';
 import { UserService } from './user';
 
@@ -28,14 +29,81 @@ export class scheduleService {
         });
     }
 
+    public getRealTimeData(): void {
+        this.supabase.supabase.channel('public:asignaciones').on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'asignaciones' },
+            (payload: RealtimePostgresChangesPayload<any>) => this.handleRealtimePayload(payload)
+        ).subscribe();
+    }
+
+    private async handleRealtimePayload(payload: RealtimePostgresChangesPayload<any>): Promise<void> {
+        switch (payload.eventType) {
+            case 'INSERT':
+                this.supabase.getData('usuarios', '*').eq('id', payload.new.id_usuario).then(({ data }) => {
+                    const user = data[0];
+                    this.data.update((currentData) => {
+                        return currentData.map(group => {
+                            const updatedHorarios = group.horarios.map(schedule => {
+                                if (schedule.id === payload.new.id_horario) {
+                                    this
+                                    const newGente = [
+                                        ...schedule.gente,
+                                        {
+                                            id: user.id,
+                                            assignmentId: payload.new.id,
+                                            trackId: `${schedule.trackId}-${payload.new.id_usuario}`,
+                                            nombre: `${user.nombre} ${user.apellido}`,
+                                            email: user.email
+                                        }
+                                    ];
+
+                                    if (this.userService.user.id === payload.new.id_usuario) {
+                                        this.userService.user.assignmentPlace = group.puesto;
+                                        this.userService.user.assignmentId = payload.new.id;
+                                        this.userService.user.schedule = schedule.horaInicio;
+                                    }
+
+                                    return {
+                                        ...schedule,
+                                        gente: newGente,
+                                        bloqueado: newGente.length >= group.limite
+                                    };
+                                }
+                                return schedule;
+                            });
+                            return {
+                                ...group,
+                                horarios: updatedHorarios
+                            };
+                        });
+                    });
+                });
+                break;
+            case 'DELETE':
+                this.data.update((currentData) => {
+                    const auxArray = currentData.map((group) => {
+                        group.horarios.forEach((schedule) => {
+                            schedule.gente = schedule.gente.filter(user => user.assignmentId !== payload.old['id']);
+                            schedule.bloqueado = schedule.gente.length >= group.limite;
+                        });
+                        return group;
+                    });
+
+                    return auxArray;
+                });
+                break;
+        }
+  }
+
     private formatScheduleData(data: any, assignmentsData: any): void {
         const groups = data.reduce((acc, item) => {
             const puesto = item.trabajos.nombre;
             const hora = item.horario.substring(0, 5);
 
-            const users = assignmentsData.reduce((acc, { usuarios, id_horario }) => {
+            const users = assignmentsData.reduce((acc, { usuarios, id, id_horario }) => {
                 if (id_horario === item.id) {
-                    return [...acc, usuarios];
+                    return [...acc, { ...usuarios, assignmentId: id }];
                 }
 
                 return acc;
@@ -66,14 +134,12 @@ export class scheduleService {
 
             if (users?.length) {
                 jornada.gente = users.map(user => {
-                    const nombreUsuario = `${user.nombre} ${user.apellido}`;
-                    const emailUsuario = user.email;
-
                     return {
                         id: user.id,
+                        assignmentId: user.assignmentId,
                         trackId: `${item.trabajos.id}-${item.id}-${user.id}`,
-                        nombre: nombreUsuario,
-                        email: emailUsuario
+                        nombre: `${user.nombre} ${user.apellido}`,
+                        email: user.email
                     };
                 });
             }
