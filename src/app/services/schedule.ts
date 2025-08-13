@@ -13,6 +13,7 @@ export class scheduleService {
 
     public data = signal([]);
     public festivity;
+    public disabled: boolean;
 
     public getData(): void {
         const today = new Date().toISOString();
@@ -94,6 +95,7 @@ export class scheduleService {
                 });
                 break;
         }
+        this.disabled = false;
   }
 
     private formatScheduleData(data: any, assignmentsData: any): void {

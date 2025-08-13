@@ -23,10 +23,12 @@ export default class MainComponent implements OnInit {
     }
 
     addToWork(scheduleId: string): void {
+        this.scheduleService.disabled = true;
         this.scheduleService.addToWork(scheduleId).then();
     }
 
     removeToWork(): void {
+        this.scheduleService.disabled = true;
         this.scheduleService.removeFromWork().then(() => {
             this.userService.user.assignmentId = undefined;
             this.userService.user.assignmentPlace = undefined;
