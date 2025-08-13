@@ -12,10 +12,10 @@
                                 <li>{{ persona.nombre }}</li>
                             }
                         </ul>
-                        @if (!userService.user.assignmentPlace) {
+                        @if (!userService.user.assignmentPlace && jornada.gente.length < puesto.limite) {
                             <button (click)="addToWork(puesto.id, puesto.puesto, jornada.horaInicio)">AÑADIR</button>
                         } @else if (userService.user.assignmentPlace === puesto.puesto && jornada.horaInicio === userService.user.schedule) {
-                            <button (click)="removeToWork()">Eliminar</button>
+                            <button (click)="removeToWork()">ELIMINAR</button>
                         }
                     </div>
                 }
