@@ -12,7 +12,11 @@
                         </div>
                         <ul class="people-container">
                             @for (persona of horario.gente; track persona.trackId) {
-                                <li>{{ persona.nombre }}</li>
+                                @if (persona.nombre) {
+                                    <li>{{ persona.nombre }}</li>
+                                } @else {
+                                    <li>{{ persona.email }}</li>
+                                }
                             }
                         </ul>
                         @if (!userService.user.assignmentPlace && horario.gente.length < puesto.limite) {

@@ -140,7 +140,7 @@ export class scheduleService {
                         id: user.id,
                         assignmentId: user.assignmentId,
                         trackId: `${item.trabajos.id}-${item.id}-${user.id}`,
-                        nombre: `${user.nombre} ${user.apellido}`,
+                        nombre: `${user.nombre} ${user.apellido || ''}`,
                         email: user.email
                     };
                 });
