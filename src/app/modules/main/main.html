@@ -22,7 +22,7 @@
                         @if (!userService.user.assignmentPlace && horario.gente.length < puesto.limite) {
                             <button [disabled]="scheduleService.disabled" (click)="addToWork(horario.id)">AÑADIR</button>
                         } @else if (userService.user.assignmentPlace === puesto.puesto && horario.horaInicio === userService.user.schedule) {
-                            <button [disabled]="scheduleService.disabled" (click)="removeToWork()">ELIMINAR</button>
+                            <button class="delete-button" [disabled]="scheduleService.disabled" (click)="removeToWork()">ELIMINAR</button>
                         }
                     </div>
                 }
