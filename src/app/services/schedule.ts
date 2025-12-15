@@ -22,8 +22,8 @@ export class scheduleService {
                 this.festivity = data[0].festividad;
                 this.supabase.getData('asignaciones', '*, usuarios(*), horarios(*)').eq('horarios.id_festividad', this.festivity.id).then(response => {
                     const usersData = response.data;
-                    this.setUserScheduleData(data, usersData);
 
+                    this.setUserScheduleData(data, usersData);
                     this.formatScheduleData(data, usersData);
                 });
             }
@@ -167,7 +167,13 @@ export class scheduleService {
     }
 
     private setUserScheduleData(data: any, assignmentsData: any): void {
-        const assignment = assignmentsData.find(({ id_usuario }) => id_usuario === this.userService.user.id);
+        let assignment;
+        assignmentsData.forEach((_assignment) => {
+            if (_assignment.id_usuario === this.userService.user.id) {
+                assignment = _assignment;
+                return;
+            }
+        });
         const scheduleData = data.find(({ id }) => id === assignment?.id_horario);
 
         if (scheduleData) {
