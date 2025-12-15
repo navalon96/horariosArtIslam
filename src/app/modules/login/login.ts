@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 import { environment } from '../../../../environments/environment';
@@ -16,18 +16,20 @@ declare const google: any;
     standalone: true,
     imports: [CommonModule]
 })
-export default class LoginComponent implements OnInit {
+export default class LoginComponent implements AfterViewInit {
 
     public env = environment;
     private supabase: SupabaseService = inject(SupabaseService);
     private cookiesService: CookiesService = inject(CookiesService);
     private router: Router = inject(Router);
     private userService: UserService = inject(UserService);
+    private ngZone: NgZone = inject(NgZone);
 
-    ngOnInit(): void {
+    ngAfterViewInit(): void {
         google.accounts.id.initialize({
             client_id: environment.google.client_id,
             callback: (response: any) => this.handleCredentialResponse(response),
+            ux_mode: 'popup',
             auto_prompt: false
         });
         google.accounts.id.renderButton(
@@ -45,11 +47,12 @@ export default class LoginComponent implements OnInit {
     }
 
     handleCredentialResponse(response: any): void {
+        console.log(response);
         const decodedUser: any = jwtDecode(response.credential);
         const { email, name, family_name, given_name } = decodedUser;
 
-        this.supabase.getData('usuarios').eq('email', email).single().then(response => {
-            if (response.data) {
+        this.supabase.getData('usuarios').eq('email', email).single().then(({ data }) => {
+            if (data) {
                 this.goNextStep(email, name);
             } else {
                 this.userService.registerUser(email, given_name, family_name).then(() => {
@@ -60,8 +63,10 @@ export default class LoginComponent implements OnInit {
     }
 
     private async goNextStep(email: string, name: string): Promise<void> {
-        this.userService.user = { email, name };
-        this.cookiesService.set();
-        this.router.navigate(['/main']);
+        this.ngZone.run(() => {
+            this.userService.user = { email, name };
+            this.cookiesService.set();
+            this.router.navigate(['/main']);
+        });
     }
 }
